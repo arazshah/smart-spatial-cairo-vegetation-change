@@ -64,5 +64,6 @@ effect of coarsening is discussed as a limitation. Fixed thresholds were set bef
 - [x] Plugin source review + bug reproductions (`scripts/verify_bugs.py`, `bugs/001–008`)
 - [x] Pin moved to 0.5.6 (latest); all 8 bugs re-verified, plugin sources unchanged since 0.3.0
 - [x] Pipeline dry-run on synthetic data; plugin output == independent reference
-- [ ] Fetch real Sentinel-2 + OSM data (blocked by session egress policy on 2026-09-24)
-- [ ] Real run, figures, final numbers in paper.md
+- [x] Real data: S2 2017-08-27 / 2025-09-01 (no L2A before 2017 on Earth Search); districts from
+      geoBoundaries ADM2 because OSM has no qism relations in Cairo (only admin_level 2 and 4)
+- [x] Real run (18.5 min), crosscheck ≤ 5e-5, water-masked sensitivity, figures, paper.md final

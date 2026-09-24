@@ -8,7 +8,8 @@ git-ignored (regenerate with the commands below); small result tables are copied
 |---|---|---|---|
 | `raw/s2_<date>_B04.tif`, `raw/s2_<date>_B08.tif` | `scripts/01_fetch_sentinel2.py` | Sentinel-2 L2A COGs on AWS (`sentinel-cogs`), found via Earth Search STAC `https://earth-search.aws.element84.com/v1/search`; collection `sentinel-2-c1-l2a` (fallback `sentinel-2-l2a`) | Copernicus Sentinel data, free & open (Copernicus licence) |
 | `raw/scenes.json` | same | STAC item IDs, datetimes, MGRS tile, cloud cover, processing baseline, asset hrefs, per-band `scale`/`offset` | — |
-| `raw/districts.geojson`, `raw/districts_inspect.json` | `scripts/02_fetch_districts.py` | OpenStreetMap via Overpass API (`overpass-api.de`, fallback mirror `overpass.kumi.systems`), `boundary=administrative` relations | © OpenStreetMap contributors, ODbL 1.0 |
+| `raw/districts_inspect.json`, `raw/osm_boundary_survey_raw.json` | `scripts/02_fetch_districts.py --inspect` | OpenStreetMap via Overpass (`overpass-api.de`, mirror `overpass.kumi.systems`); used to check whether OSM has qism relations | © OpenStreetMap contributors, ODbL 1.0 |
+| `raw/districts.geojson`, `raw/geoBoundaries-EGY-ADM2*.json` | `scripts/02_fetch_districts.py --source geoboundaries` | geoBoundaries gbOpen EGY ADM2 (CAPMAS / OCHA ROMENA, 2020) | CC BY 3.0 IGO |
 | `processed/*` | `scripts/03`–`06` | derived | — |
 | `synthetic/*` | `scripts/00_make_synthetic.py` | generated test data for offline dry-runs; **never reported** | — |
 
@@ -44,7 +45,7 @@ git-ignored (regenerate with the commands below); small result tables are copied
 pip install -r requirements.txt
 python scripts/01_fetch_sentinel2.py
 python scripts/02_fetch_districts.py --inspect      # read the level, then:
-python scripts/02_fetch_districts.py --level <N>
+python scripts/02_fetch_districts.py --source geoboundaries   # OSM has no qism level for Cairo
 python scripts/03_prepare_inputs.py
 python scripts/04_run_s3geo_pipeline.py
 python scripts/05_figures_tables.py
@@ -54,7 +55,12 @@ python scripts/verify_bugs.py
 
 ## Status (2026-09-24)
 
-- Sentinel-2: downloaded (see above).
-- OSM: `overpass-api.de` answers this cloud egress with HTTP 406 / connection reset, even for
-  its home page. The script falls back to `overpass.kumi.systems`, which is waiting for network
-  approval.
+- **Sentinel-2:** downloaded. The 2025 item has `earthsearch:boa_offset_applied=true`, so its
+  advertised `offset=-0.1` is **not** applied again (see `scripts/03_prepare_inputs.py`).
+- **OSM:** `overpass-api.de` rejects the cloud egress with 406; the `overpass.kumi.systems`
+  mirror works. The inspection found only `admin_level` 2 and 4 in the AOI and no qism/hayy
+  relations. The survey is saved in `raw/districts_inspect.json` and
+  `raw/osm_boundary_survey_raw.json`.
+- **Districts:** taken from **geoBoundaries gbOpen EGY ADM2** (CAPMAS via OCHA/HDX, 2020,
+  CC BY 3.0 IGO): `02_fetch_districts.py --source geoboundaries`. 48 units have ≥ 50 % of their
+  area inside the AOI.

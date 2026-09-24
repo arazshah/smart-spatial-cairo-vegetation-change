@@ -40,12 +40,18 @@ def band_path(entry):
     return p if p.startswith("/") else str(ROOT / p)
 
 
-def reflectance(entry, baseline):
+def reflectance(entry, baseline, offset_already_applied):
     scale = entry.get("scale")
     offset = entry.get("offset")
     if scale is None:
         scale = 1e-4
-    if offset is None:  # asset metadata missing -> derive from processing baseline
+    if offset_already_applied:
+        # Earth Search 'sentinel-2-l2a' items with earthsearch:boa_offset_applied=True have DNs
+        # already shifted back to the pre-04.00 convention, yet raster:bands still advertises
+        # offset=-0.1. Applying it again double-corrects: 16 % of 2025 B04 pixels have DN < 1000,
+        # impossible for un-shifted baseline>=04.00 data. Verified 2026-09-24.
+        offset = 0.0
+    elif offset is None:  # asset metadata missing -> derive from processing baseline
         offset = -0.1 if baseline and float(baseline) >= 4.0 else 0.0
     with rasterio.open(band_path(entry)) as src:
         dn = src.read(1).astype("float32")
@@ -61,9 +67,10 @@ def reflectance(entry, baseline):
 harmonisation = {}
 for role, sc in scenes["scenes"].items():
     baseline = sc.get("s2:processing_baseline")
-    red, s_r, o_r = reflectance(sc["bands"]["B04"], baseline)
-    nir, s_n, o_n = reflectance(sc["bands"]["B08"], baseline)
-    harmonisation[role] = {"date": sc["datetime"][:10], "baseline": baseline,
+    applied = sc.get("earthsearch:boa_offset_applied")
+    red, s_r, o_r = reflectance(sc["bands"]["B04"], baseline, applied)
+    nir, s_n, o_n = reflectance(sc["bands"]["B08"], baseline, applied)
+    harmonisation[role] = {"date": sc["datetime"][:10], "baseline": baseline, "boa_offset_applied": applied,
                            "B04": {"scale": s_r, "offset": o_r}, "B08": {"scale": s_n, "offset": o_n},
                            "valid_fraction": float(np.isfinite(red + nir).mean())}
     with rasterio.open(PROC / f"refl_{role}.tif", "w", driver="GTiff", width=W, height=H, count=2,

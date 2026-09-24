@@ -8,6 +8,13 @@ data/raw/districts.geojson (EPSG:4326) + data/raw/districts_inspect.json.
 
     python scripts/02_fetch_districts.py --inspect
     python scripts/02_fetch_districts.py --level 8
+    python scripts/02_fetch_districts.py --source geoboundaries
+
+Finding (2026-09-24): in the AOI, OSM holds only admin_level 2 (Egypt) and 4 (governorates).
+No qism/hayy relation exists at any level (the probe names match only metro stations, squares
+and untagged ways). The district layer therefore comes from geoBoundaries gbOpen EGY ADM2
+("marakiz and aqsam", CAPMAS via OCHA/HDX, CC BY 3.0 IGO), which is the qism level. The OSM
+inspection is kept in raw/districts_inspect.json as evidence.
 """
 from __future__ import annotations
 
@@ -18,6 +25,7 @@ import time
 
 import geopandas as gpd
 import requests
+import pandas as pd
 from shapely.geometry import LineString, box
 from shapely.ops import linemerge, polygonize, unary_union
 
@@ -107,16 +115,48 @@ def fetch(level: str) -> gpd.GeoDataFrame:
     return gdf.sort_values("name_en").reset_index(drop=True)
 
 
+GB_URL = ("https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/main/releaseData/"
+          "gbOpen/EGY/ADM2/geoBoundaries-EGY-ADM2")
+
+
+def fetch_geoboundaries() -> gpd.GeoDataFrame:
+    meta = requests.get(GB_URL + "-metaData.json", timeout=60).json()
+    r = requests.get(GB_URL + ".geojson", timeout=300)
+    r.raise_for_status()
+    (RAW / "geoBoundaries-EGY-ADM2.geojson").write_bytes(r.content)
+    dump(meta, RAW / "geoBoundaries-EGY-ADM2-metaData.json")
+    g = gpd.read_file(RAW / "geoBoundaries-EGY-ADM2.geojson").to_crs("EPSG:32636")
+    aoi = gpd.GeoSeries([box(*AOI_BBOX)], crs="EPSG:4326").to_crs("EPSG:32636").iloc[0]
+    g["aoi_share"] = g.geometry.intersection(aoi).area / g.geometry.area
+    g = g[g["aoi_share"] >= 0.5].copy()
+    g["geometry"] = g.geometry.intersection(aoi)
+    dup = g["shapeName"].duplicated(keep=False)
+    g["name"] = g["shapeName"]
+    g.loc[dup, "name"] = g.loc[dup, "shapeName"] + " (" + g.loc[dup, "shapeID"].str[-4:] + ")"
+    g["name_en"] = g["name"]
+    g["district_id"] = g["shapeID"]
+    g["source"] = "geoBoundaries gbOpen EGY ADM2 " + str(meta.get("boundaryYear"))
+    out = g[["district_id", "name", "name_en", "shapeID", "aoi_share", "source", "geometry"]]
+    return out.to_crs("EPSG:4326").sort_values("name_en").reset_index(drop=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--inspect", action="store_true")
     ap.add_argument("--level", default=None, help="admin_level to download (see --inspect)")
+    ap.add_argument("--source", choices=["osm", "geoboundaries"], default="osm")
     a = ap.parse_args()
+    if a.source == "geoboundaries":
+        gdf = fetch_geoboundaries()
+        gdf.to_file(RAW / "districts.geojson", driver="GeoJSON")
+        print(f"wrote {len(gdf)} geoBoundaries ADM2 units -> {RAW / 'districts.geojson'}")
+        return 0
     if a.inspect or not a.level:
         info = inspect()
         if not a.level:
             if not info["probe_admin_levels"]:
-                print("no probe matched; pass --level explicitly", file=sys.stderr)
+                print("no OSM admin relation matches the probe districts -> "
+                      "use --source geoboundaries (qism level from CAPMAS/OCHA)", file=sys.stderr)
                 return 1
             a.level = max(info["probe_admin_levels"], key=info["probe_admin_levels"].get)
             print("using most common probe level:", a.level)

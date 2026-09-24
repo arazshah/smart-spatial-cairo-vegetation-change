@@ -80,7 +80,7 @@ fig.savefig(FIG / "fig3_change_classes_districts.png", dpi=180)
 plt.close(fig)
 
 # Fig 4: ranked bars - sharpest declines (one measure, one axis)
-top = [r for r in rows if r["dndvi_mean"] not in ("", None)][:15]
+top = [r for r in rows if r["dndvi_mean"] not in ("", None) and float(r["dndvi_mean"]) < 0][:15]
 fig, ax = plt.subplots(figsize=(7.5, 0.32 * len(top) + 1.2), constrained_layout=True)
 vals = [float(r["dndvi_mean"]) for r in top]
 names = [r["name_en"] or r["name"] for r in top]
@@ -88,7 +88,7 @@ ax.barh(range(len(top)), vals, color="#e34948", height=0.72)
 ax.set_yticks(range(len(top)), names)
 ax.invert_yaxis()
 ax.axvline(0, color=MUTED, linewidth=0.8)
-ax.set_xlim(min(vals) * 1.15, max(0.0, max(vals)) + 0.01)
+ax.set_xlim(min(vals) * 1.3, 0.002)
 ax.grid(axis="x", color="#e4e2dc", linewidth=0.6)
 ax.set_axisbelow(True)
 for i, v in enumerate(vals):
@@ -108,6 +108,10 @@ def fmt(v, nd=3):
         return "n/a"
 
 
+def label_of(r):
+    return r['name_en'] if r['name_en'] == r['name'] else f"{r['name_en']} ({r['name']})"
+
+
 hdr = ("| Rank | District | Area km² | NDVI early | NDVI late | ΔNDVI mean | ΔNDVI median | "
        "Veg. cover early → late (%) | Decline area ha (strong + moderate) | Decline share % |\n"
        "|---:|---|---:|---:|---:|---:|---:|---|---:|---:|\n")
@@ -117,7 +121,7 @@ for r in rows:
         continue
     ve = float(r["veg_frac_early"]) * 100 if r["veg_frac_early"] else float("nan")
     vl = float(r["veg_frac_late"]) * 100 if r["veg_frac_late"] else float("nan")
-    lines.append(f"| {r['rank_decline']} | {r['name_en'] or r['name']} ({r['name']}) | {float(r['area_km2']):.1f} | "
+    lines.append(f"| {r['rank_decline']} | {label_of(r)} | {float(r['area_km2']):.1f} | "
                  f"{float(r['ndvi_early_mean']):.3f} | {float(r['ndvi_late_mean']):.3f} | {fmt(r['dndvi_mean'])} | "
                  f"{fmt(r['dndvi_median'])} | {ve:.1f} → {vl:.1f} | "
                  f"{float(r['strong_decline_ha']) + float(r['decline_ha']):.0f} "

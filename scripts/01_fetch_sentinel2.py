@@ -144,6 +144,8 @@ def main() -> int:
             "id": it["id"], "datetime": p["datetime"], "mgrs_tile": mgrs(it),
             "eo:cloud_cover": p.get("eo:cloud_cover"),
             "s2:processing_baseline": p.get("s2:processing_baseline"),
+            # True = Element84 already removed BOA_ADD_OFFSET from the DNs (see 03_prepare_inputs)
+            "earthsearch:boa_offset_applied": p.get("earthsearch:boa_offset_applied"),
             "platform": p.get("platform"), "stac_self": next(
                 (l["href"] for l in it.get("links", []) if l.get("rel") == "self"), None),
             "bands": {},
