@@ -8,6 +8,16 @@
    `smart-spatial-system==0.5.7` (s3geo) plugins, including an honest account of what worked and
    what did not (bug reports in `bugs/`).
 
+## Outcome vs plan (added after the analysis)
+
+This plan was written before the data were seen and is kept as written. The deviations were:
+
+- **Period:** 2017 → 2025 instead of ~2015 → 2025, because Earth Search has no L2A over Cairo before 2017.
+- **District layer:** geoBoundaries ADM2 instead of OSM, because OSM has no qism relations in Cairo.
+- **Extra step:** a water-masked sensitivity run was added after the change map was inspected.
+
+All three are explained in `paper/paper.md` §2.1 and §3.4.
+
 ## Research question
 
 How has NDVI changed across Cairo between a dry-season scene from ~2015 and one from ~2025,

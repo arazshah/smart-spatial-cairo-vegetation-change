@@ -1,6 +1,12 @@
 # Where did Cairo's green go? District-level NDVI change in Greater Cairo, 2017–2025, with the s3geo smart spatial system
 
-*Case study for `smart-spatial-system` (s3geo): analysed on 0.5.6 and re-run on **0.5.7**, with identical results · 2026-09-24*
+**Araz Shah** · 2026-09-24 · version 1.0
+
+*Case study for `smart-spatial-system` (s3geo): analysed on 0.5.6 and re-run on **0.5.7**, with
+identical results.*
+
+**Keywords:** Sentinel-2, NDVI, change detection, urban vegetation, Cairo, zonal statistics,
+s3geo, reproducible research
 
 ---
 
