@@ -1,0 +1,166 @@
+{
+  "qid": "Q6",
+  "question": "(see notebook)",
+  "ok": true,
+  "error": null,
+  "plan": {
+    "raw_query": "q",
+    "goal": "c",
+    "entities": [
+      {
+        "ref": "s2_stack",
+        "kind": "raster",
+        "binding": {},
+        "hints": {}
+      }
+    ],
+    "operations": [
+      {
+        "op": "band_math",
+        "inputs": {
+          "raster": "s2_stack"
+        },
+        "params": {
+          "expression": "(b4 - b3) / (b4 + b3) - (b2 - b1) / (b2 + b1)"
+        },
+        "output": "d"
+      },
+      {
+        "op": "raster_reclassify",
+        "inputs": {
+          "raster": "d"
+        },
+        "params": {
+          "rules": [
+            {
+              "min": -2,
+              "max": -0.15,
+              "value": 1,
+              "inclusive_max": false
+            },
+            {
+              "min": -0.15,
+              "max": -0.05,
+              "value": 2,
+              "inclusive_max": false
+            },
+            {
+              "min": -0.05,
+              "max": 0.05,
+              "value": 3
+            },
+            {
+              "min": 0.05,
+              "max": 0.15,
+              "value": 4,
+              "inclusive_max": false
+            },
+            {
+              "min": 0.15,
+              "max": 2,
+              "value": 5
+            }
+          ]
+        },
+        "output": "c"
+      }
+    ],
+    "outputs": [
+      {
+        "kind": "json",
+        "source": "c",
+        "format": "json",
+        "config": {}
+      }
+    ],
+    "metadata": {
+      "language": "fa",
+      "assumptions": []
+    }
+  },
+  "query_spec": null,
+  "attempts": [
+    {
+      "number": 1,
+      "plan": {
+        "raw_query": "q",
+        "goal": "c",
+        "entities": [
+          {
+            "ref": "s2_stack",
+            "kind": "raster",
+            "binding": {},
+            "hints": {}
+          }
+        ],
+        "operations": [
+          {
+            "op": "band_math",
+            "inputs": {
+              "raster": "s2_stack"
+            },
+            "params": {
+              "expression": "(b4 - b3) / (b4 + b3) - (b2 - b1) / (b2 + b1)"
+            },
+            "output": "d"
+          },
+          {
+            "op": "raster_reclassify",
+            "inputs": {
+              "raster": "d"
+            },
+            "params": {
+              "rules": [
+                {
+                  "min": -2,
+                  "max": -0.15,
+                  "value": 1,
+                  "inclusive_max": false
+                },
+                {
+                  "min": -0.15,
+                  "max": -0.05,
+                  "value": 2,
+                  "inclusive_max": false
+                },
+                {
+                  "min": -0.05,
+                  "max": 0.05,
+                  "value": 3
+                },
+                {
+                  "min": 0.05,
+                  "max": 0.15,
+                  "value": 4,
+                  "inclusive_max": false
+                },
+                {
+                  "min": 0.15,
+                  "max": 2,
+                  "value": 5
+                }
+              ]
+            },
+            "output": "c"
+          }
+        ],
+        "outputs": [
+          {
+            "kind": "json",
+            "source": "c",
+            "format": "json",
+            "config": {}
+          }
+        ],
+        "metadata": {
+          "language": "fa",
+          "assumptions": []
+        }
+      },
+      "error": null
+    }
+  ],
+  "llm": {
+    "model": "NONE - hand-written reference plan used only to check that the question is expressible in s3geo's operation catalog; NOT an LLM output"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "qid": "Q8",
+  "question": "(see notebook)",
+  "ok": true,
+  "error": null,
+  "plan": {
+    "raw_query": "q",
+    "goal": "p",
+    "entities": [
+      {
+        "ref": "s2_stack",
+        "kind": "raster",
+        "binding": {},
+        "hints": {}
+      }
+    ],
+    "operations": [
+      {
+        "op": "band_math",
+        "inputs": {
+          "raster": "s2_stack"
+        },
+        "params": {
+          "expression": "(b4 - b3) / (b4 + b3) - (b2 - b1) / (b2 + b1)"
+        },
+        "output": "d"
+      },
+      {
+        "op": "raster_threshold",
+        "inputs": {
+          "raster": "d"
+        },
+        "params": {
+          "operator": "lt",
+          "threshold": -0.05,
+          "true_value": 1,
+          "false_value": 0
+        },
+        "output": "m"
+      },
+      {
+        "op": "raster_to_vector",
+        "inputs": {
+          "raster": "m"
+        },
+        "params": {
+          "include_values": [
+            1
+          ],
+          "mode": "components",
+          "connectivity": 8
+        },
+        "output": "p"
+      }
+    ],
+    "outputs": [
+      {
+        "kind": "json",
+        "source": "p",
+        "format": "json",
+        "config": {}
+      }
+    ],
+    "metadata": {
+      "language": "fa",
+      "assumptions": []
+    }
+  },
+  "query_spec": null,
+  "attempts": [
+    {
+      "number": 1,
+      "plan": {
+        "raw_query": "q",
+        "goal": "p",
+        "entities": [
+          {
+            "ref": "s2_stack",
+            "kind": "raster",
+            "binding": {},
+            "hints": {}
+          }
+        ],
+        "operations": [
+          {
+            "op": "band_math",
+            "inputs": {
+              "raster": "s2_stack"
+            },
+            "params": {
+              "expression": "(b4 - b3) / (b4 + b3) - (b2 - b1) / (b2 + b1)"
+            },
+            "output": "d"
+          },
+          {
+            "op": "raster_threshold",
+            "inputs": {
+              "raster": "d"
+            },
+            "params": {
+              "operator": "lt",
+              "threshold": -0.05,
+              "true_value": 1,
+              "false_value": 0
+            },
+            "output": "m"
+          },
+          {
+            "op": "raster_to_vector",
+            "inputs": {
+              "raster": "m"
+            },
+            "params": {
+              "include_values": [
+                1
+              ],
+              "mode": "components",
+              "connectivity": 8
+            },
+            "output": "p"
+          }
+        ],
+        "outputs": [
+          {
+            "kind": "json",
+            "source": "p",
+            "format": "json",
+            "config": {}
+          }
+        ],
+        "metadata": {
+          "language": "fa",
+          "assumptions": []
+        }
+      },
+      "error": null
+    }
+  ],
+  "llm": {
+    "model": "NONE - hand-written reference plan used only to check that the question is expressible in s3geo's operation catalog; NOT an LLM output"
+  }
+}

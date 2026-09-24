@@ -9,3 +9,7 @@ shapely>=2.0
 pyproj>=3.6
 requests>=2.31
 matplotlib>=3.8
+
+# LLM-mode notebook (notebooks/cairo_s3geo_llm.ipynb)
+jupyter
+nbformat

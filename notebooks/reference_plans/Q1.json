@@ -1,0 +1,90 @@
+{
+  "qid": "Q1",
+  "question": "(see notebook)",
+  "ok": true,
+  "error": null,
+  "plan": {
+    "raw_query": "q",
+    "goal": "ndvi",
+    "entities": [
+      {
+        "ref": "s2_2017",
+        "kind": "raster",
+        "binding": {},
+        "hints": {}
+      }
+    ],
+    "operations": [
+      {
+        "op": "ndvi",
+        "inputs": {
+          "raster": "s2_2017"
+        },
+        "params": {
+          "red_band": 1,
+          "nir_band": 2
+        },
+        "output": "ndvi_2017"
+      }
+    ],
+    "outputs": [
+      {
+        "kind": "json",
+        "source": "ndvi_2017",
+        "format": "json",
+        "config": {}
+      }
+    ],
+    "metadata": {
+      "language": "fa",
+      "assumptions": []
+    }
+  },
+  "query_spec": null,
+  "attempts": [
+    {
+      "number": 1,
+      "plan": {
+        "raw_query": "q",
+        "goal": "ndvi",
+        "entities": [
+          {
+            "ref": "s2_2017",
+            "kind": "raster",
+            "binding": {},
+            "hints": {}
+          }
+        ],
+        "operations": [
+          {
+            "op": "ndvi",
+            "inputs": {
+              "raster": "s2_2017"
+            },
+            "params": {
+              "red_band": 1,
+              "nir_band": 2
+            },
+            "output": "ndvi_2017"
+          }
+        ],
+        "outputs": [
+          {
+            "kind": "json",
+            "source": "ndvi_2017",
+            "format": "json",
+            "config": {}
+          }
+        ],
+        "metadata": {
+          "language": "fa",
+          "assumptions": []
+        }
+      },
+      "error": null
+    }
+  ],
+  "llm": {
+    "model": "NONE - hand-written reference plan used only to check that the question is expressible in s3geo's operation catalog; NOT an LLM output"
+  }
+}

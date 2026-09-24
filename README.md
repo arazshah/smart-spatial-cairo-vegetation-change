@@ -41,6 +41,19 @@ The case study also acted as a field test of s3geo. It found **8 defects in 0.5.
 minimal reproduction (`scripts/verify_bugs.py`). **7 are fixed in 0.5.7.** Re-running on 0.5.7
 reproduces every number exactly, and runs **~20× faster** (18.5 min → 55 s).
 
+## Ask s3geo in plain language (LLM mode)
+
+In [`notebooks/cairo_s3geo_llm.ipynb`](notebooks/cairo_s3geo_llm.ipynb) the analysis is **not**
+scripted. The notebook hands s3geo the rasters and districts, then asks 9 questions in Persian,
+for example: *"Which 10 Cairo districts had the largest vegetation decline between 2017 and
+2025?"*
+
+For each question, `s3geo.query()` has an LLM write the plan. s3geo then validates the plan,
+repairs it if needed, and executes it. Every answer is checked against the paper's numbers.
+
+The LLM plans and the evaluation are saved in `notebooks/plans/` and `notebooks/results/`. See
+[`notebooks/README.md`](notebooks/README.md) for how to run it.
+
 ## Reproduce
 
 ```bash
