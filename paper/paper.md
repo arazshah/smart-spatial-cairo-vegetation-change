@@ -1,6 +1,6 @@
 # Where did Cairo's green go? A ten-year NDVI change analysis of Greater Cairo districts with the s3geo smart spatial system
 
-*Case study for `smart-spatial-system==0.3.0` (s3geo) · draft 2026-09-24*
+*Case study for `smart-spatial-system==0.5.6` (s3geo) · draft 2026-09-24*
 
 > **Status: methods, pipeline and tool evaluation are complete; the results sections are waiting
 > for the real input data.** The session that built this project could not reach the data hosts
@@ -19,7 +19,7 @@ years apart (≈2015 and ≈2025). We compute NDVI, classify vegetation health, 
 the city's districts (qism / hayy, from OpenStreetMap) by vegetation decline. Every analytical
 step is carried out with plugins of the s3geo smart spatial system, so the study also tests
 whether that toolkit can support a real remote-sensing workflow. **⏳ Key findings: pending
-data.** On the tooling side, we found eight defects in s3geo 0.3.0. Two of them — a raster
+data.** On the tooling side, we found eight defects in s3geo 0.5.6, all already present in 0.3.0. Two of them — a raster
 loader whose output cannot be fed to the analysis plugins, and O(H²·W) runtime in the raster
 plugins — shape how the toolkit can be used today. Three others silently produce wrong numbers
 under non-default options. We report all eight with minimal reproductions rather than working
@@ -161,7 +161,9 @@ cleanly. `spatial_join` and `centroid_extractor` use shapely and are fast. The p
 | [007](../bugs/007-normalize-transform-rejects-complete-dict.md) | raster_clip_mask helper | crash | complete `{a..f}` dict transform rejected (eager default) | medium |
 | [008](../bugs/008-generic-top-level-package-names.md) | packaging | packaging | installs top-level `config`, `plugins`, `api`, … | low–medium |
 
-None of these were patched or monkey-patched. Where a defect constrained the analysis, the
+All eight were first found on 0.3.0 and re-verified on 0.5.6, the latest release on 2026-09-24. The
+source of every plugin used here is byte-identical between the two versions. None of these were
+patched or monkey-patched. Where a defect constrained the analysis, the
 constraint is stated in §2.3–2.4.
 
 ## 5 Discussion and limitations

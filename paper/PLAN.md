@@ -5,7 +5,7 @@
 1. **Urban-environment question**: how has vegetation health and extent (NDVI) changed across
    Cairo over ~10 years, and which districts lost the most?
 2. **Tool demonstration**: show a reproducible remote-sensing workflow built from
-   `smart-spatial-system==0.3.0` (s3geo) plugins, including an honest account of what worked and
+   `smart-spatial-system==0.5.6` (s3geo) plugins, including an honest account of what worked and
    what did not (bug reports in `bugs/`).
 
 ## Research question
@@ -62,6 +62,7 @@ effect of coarsening is discussed as a limitation. Fixed thresholds were set bef
 
 - [x] Phase 0: CLAUDE.md, requirements.txt, data/README.md, this plan
 - [x] Plugin source review + bug reproductions (`scripts/verify_bugs.py`, `bugs/001–008`)
+- [x] Pin moved to 0.5.6 (latest); all 8 bugs re-verified, plugin sources unchanged since 0.3.0
 - [x] Pipeline dry-run on synthetic data; plugin output == independent reference
 - [ ] Fetch real Sentinel-2 + OSM data (blocked by session egress policy on 2026-09-24)
 - [ ] Real run, figures, final numbers in paper.md

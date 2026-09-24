@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.3.0 |
+| Package | smart-spatial-system==0.5.6 |
 | Component | `plugins/<file>.py` → `<function>` |
 | Severity | critical / high / medium / low |
 | Kind | wrong result / crash / performance / API inconsistency / packaging |

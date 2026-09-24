@@ -2,12 +2,13 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.3.0 |
+| Package | smart-spatial-system==0.5.6 (pinned); also present in 0.3.0 |
 | Component | `plugins/local_raster_loader.py` → `load_local_raster`; `plugins/raster_clip_mask.py` → `_extract_raster` (used by ndvi_calculator, spectral_indices, band_math, raster_reclassify, zonal_statistics, raster_to_vector, …) |
 | Severity | high |
 | Kind | integration break / crash |
 | Found while | step 1 — loading the clipped Sentinel-2 reflectance GeoTIFFs for `calculate_ndvi` |
 | Repro | `python scripts/verify_bugs.py` → check `B1` |
+| Verified | 2026-09-24: reproduces on 0.3.0 and 0.5.6; the plugin source is byte-identical between them |
 
 ## Summary
 The only raster *source* plugin returns `geochat_sdk.types.raster.RasterOut(path=..., metadata=...)`,

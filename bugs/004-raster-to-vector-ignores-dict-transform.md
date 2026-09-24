@@ -2,12 +2,13 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.3.0 |
+| Package | smart-spatial-system==0.5.6 (pinned); also present in 0.3.0 |
 | Component | `plugins/raster_to_vector.py` → `_extract_transform` |
 | Severity | medium (silent wrong georeferencing) |
 | Kind | wrong result / API inconsistency |
 | Found while | reviewing transform handling before step 5 |
 | Repro | `python scripts/verify_bugs.py` → check `B4` |
+| Verified | 2026-09-24: reproduces on 0.3.0 and 0.5.6; the plugin source is byte-identical between them |
 
 ## Summary
 `zonal_statistics` and `raster_clip_mask` accept `metadata["transform"]` as a list **or a dict**

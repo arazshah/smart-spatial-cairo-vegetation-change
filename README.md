@@ -1,7 +1,7 @@
 # smart-spatial-cairo-vegetation-change
 
 Case study: **ten-year NDVI change across Greater Cairo districts (≈2015 → ≈2025)**, computed with the
-[`smart-spatial-system`](https://pypi.org/project/smart-spatial-system/) (s3geo) plugins, pinned at `0.3.0`.
+[`smart-spatial-system`](https://pypi.org/project/smart-spatial-system/) (s3geo) plugins, pinned at `0.5.6`.
 
 - Research question, method, status → [`paper/PLAN.md`](paper/PLAN.md)
 - Paper (draft) → [`paper/paper.md`](paper/paper.md)

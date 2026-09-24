@@ -2,12 +2,13 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.3.0 |
+| Package | smart-spatial-system==0.5.6 (pinned); also present in 0.3.0 |
 | Component | `plugins/zonal_statistics.py` → `_pixel_matches_zone` |
 | Severity | high (silently wrong statistics) |
 | Kind | wrong result |
 | Found while | step 4 — choosing the pixel-selection rule for district zonal statistics |
 | Repro | `python scripts/verify_bugs.py` → check `B2` |
+| Verified | 2026-09-24: reproduces on 0.3.0 and 0.5.6; the plugin source is byte-identical between them |
 
 ## Summary
 With `all_touched=True`, a pixel is assigned to a zone when the **pixel's bbox intersects the

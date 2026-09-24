@@ -2,12 +2,13 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.3.0 |
+| Package | smart-spatial-system==0.5.6 (pinned); also present in 0.3.0 |
 | Component | `plugins/raster_clip_mask.py` → `_normalize_transform` (shared by zonal_statistics, raster_clip_mask) |
 | Severity | medium |
 | Kind | crash / API inconsistency |
 | Found while | writing the repro for bug 004 |
 | Repro | `python scripts/verify_bugs.py` → check `B7` |
+| Verified | 2026-09-24: reproduces on 0.3.0 and 0.5.6; the plugin source is byte-identical between them |
 
 ## Summary
 A dict transform with all six affine keys `a, b, c, d, e, f` raises
