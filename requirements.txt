@@ -1,5 +1,5 @@
 # Analysis engine (pinned; never edited - see CLAUDE.md)
-smart-spatial-system==0.5.6
+smart-spatial-system==0.5.7
 
 # I/O, clipping, reprojection and plotting only
 rasterio>=1.4

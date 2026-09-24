@@ -2,13 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.5.6 (pinned); also present in 0.3.0 |
+| Package | smart-spatial-system 0.3.0 – 0.5.6 |
 | Component | `_band_value` / `_pixel_value` in `ndvi_calculator`, `raster_reclassify`, `band_math`, `zonal_statistics`, `raster_to_vector` (and the equivalent in `spectral_indices`); `zonal_statistics._collect_zone_values` |
 | Severity | high (full-resolution Sentinel-2 analysis is not feasible) |
 | Kind | performance |
 | Found while | sizing the analysis grid for step 1 |
 | Repro | `python scripts/verify_bugs.py` → check `B6` |
 | Verified | 2026-09-24: reproduces on 0.3.0 and 0.5.6; the plugin source is byte-identical between them |
+| Status | Fixed in 0.5.7 (4× pixels → 3.9× time; 1000² NDVI 2.4 s) — checked 2026-09-24 with `scripts/verify_bugs.py` |
 
 ## Summary
 Every per-pixel read calls `_array_shape(data)`, which loops over **all rows** (and, for 3-D input,

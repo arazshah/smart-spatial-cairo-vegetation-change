@@ -1,6 +1,6 @@
 # Where did Cairo's green go? District-level NDVI change in Greater Cairo, 2017–2025, with the s3geo smart spatial system
 
-*Case study for `smart-spatial-system==0.5.6` (s3geo) · 2026-09-24*
+*Case study for `smart-spatial-system` (s3geo): analysed on 0.5.6 and re-run on **0.5.7**, with identical results · 2026-09-24*
 
 ---
 
@@ -26,8 +26,9 @@ The dense historic core and the eastern desert-fringe districts show small NDVI 
 top-8 ranking.
 
 On the tooling side, the pipeline ran end to end on s3geo and agreed with an independent
-numpy/rasterio re-computation to 5 × 10⁻⁵. It also exposed eight defects, reported with minimal
-reproductions rather than worked around.
+numpy/rasterio re-computation to 5 × 10⁻⁵. It also exposed eight defects in 0.5.6, reported with
+minimal reproductions rather than worked around. Seven of them are fixed in 0.5.7; re-running on
+0.5.7 reproduces every number exactly and is about 20× faster.
 
 ## 1 Introduction
 
@@ -108,7 +109,7 @@ does the toolkit fall short?
 The thresholds and the primary ranking metric (district mean ΔNDVI, reported with decline area)
 were fixed in `paper/PLAN.md` before the data were seen.
 
-Choices forced by defects (all reported, none patched):
+Choices forced by defects in 0.5.6 (all reported, none patched; all fixed in 0.5.7, §4):
 
 - **`all_touched=False` everywhere.** With `all_touched=True`, zonal statistics counts the zone's
   whole bounding box (bug 002).
@@ -122,17 +123,20 @@ Choices forced by defects (all reported, none patched):
 
 ### 2.4 Resolution and runtime
 
-The raster plugins are pure Python and re-validate the whole array on every pixel read (bug 006),
-so runtime grows as O(H²·W). At 60 m, the times were:
+In 0.5.6 the raster plugins are pure Python and re-validate the whole array on every pixel read
+(bug 006), so runtime grows as O(H²·W). Version 0.5.7 fixes this. Measured times at 60 m:
 
-| Step | Time |
-|---|---:|
-| One NDVI call | 35 s |
-| One zonal-statistics run (48 districts, ≈ 4,200 vertices) | ≈ 3 min |
-| Full 17-call pipeline | 18.5 min |
+| Step | 0.5.6 | 0.5.7 |
+|---|---:|---:|
+| One NDVI call | 35 s | 0.7 s |
+| One zonal-statistics run (48 districts, ≈ 4,200 vertices) | ≈ 3 min | ≈ 7 s |
+| Full 17-call pipeline | 18.5 min | 55 s |
 
-At native 10 m, a single NDVI call would take about 2 h, so the full run would take days. We
-therefore analyse at 60 m. This dilutes street trees and small parks, so fine-scale green loss is
+With 0.5.6, a single NDVI call at native 10 m would have taken about 2 h, so the full run would
+have taken days. We therefore analyse at 60 m. On 0.5.7 the plugin runtime is no longer the limit;
+a 1000 × 1000 NDVI takes 2.4 s. What limits a 10 m run now is memory: the plugins hold rasters as
+nested Python lists, and ≈ 10 M pixels × several rasters does not fit in the 7 GB of this
+environment. This dilutes street trees and small parks, so fine-scale green loss is
 **under-estimated**. District means and fringe farmland conversion (fields ≫ 60 m) are much less
 affected.
 
@@ -344,10 +348,27 @@ ready-to-use upstream fix prompt in `bugs/UPSTREAM_FIX_PROMPT.md`):
 | [007](../bugs/007-normalize-transform-rejects-complete-dict.md) | raster_clip_mask helper | crash | complete `{a..f}` dict transform rejected (eager default) | medium |
 | [008](../bugs/008-generic-top-level-package-names.md) | packaging | packaging | installs top-level `config`, `plugins`, `api`, … | low–medium |
 
-All eight were first found on 0.3.0 and re-verified on 0.5.6, the latest release on 2026-09-24.
-The source of every plugin used here is byte-identical between the two versions. None were
-patched or monkey-patched. Where a defect constrained the analysis, the constraint is stated in
-§2.3–2.4.
+All eight were first found on 0.3.0 and re-verified on 0.5.6; the source of every plugin used
+here is byte-identical between those two versions. None were patched or monkey-patched here.
+Where a defect constrained the analysis, the constraint is stated in §2.3–2.4.
+
+**Status in 0.5.7.** The upstream fix release was checked with the same reproductions
+(`scripts/verify_bugs.py`):
+
+| ID | 0.5.7 result |
+|---|---|
+| 001 | Fixed. The loader output now chains into `calculate_ndvi`. On the real 2025 reflectance file the result matches this study's NDVI to 3 × 10⁻⁸, with identical nodata. |
+| 002 | Fixed. The triangle test gives 64 px, which is the exact count of pixels touching the closed triangle. |
+| 003 | Fixed. Two components are returned (class 1 × 4 px, class 2 × 4 px). |
+| 004 | Fixed. A dict transform is honoured (`transform_source = metadata_transform`). |
+| 005 | Fixed. `metadata.nodata` equals `output_nodata`; downstream `valid_count = 3` and `mean = 1.0`. |
+| 006 | Fixed. 4× the pixels now takes 3.9× the time (linear). A 1000² NDVI runs in 2.4 s instead of ≈ 4 min extrapolated, and zonal statistics scans only each zone's bbox window. |
+| 007 | Fixed. A complete `{a..f}` dict transform is accepted. |
+| 008 | Open. `top_level.txt` still lists `api`, `config`, `orchestrator`, `plugins`, `templates`; this was allowed as deferred in the fix request. |
+
+Re-running the full pipeline on 0.5.7 reproduces every number in this paper exactly (0 differing
+cells in `district_change_table.csv`). None of the fixed defects had biased the published results,
+because the analysis had avoided the affected options.
 
 A data-side issue that is *not* in s3geo: the Earth Search `raster:bands` offset contradicts
 `earthsearch:boa_offset_applied` (§2.2). Applying the advertised offset would have turned the
@@ -358,8 +379,8 @@ result into a spurious citywide "greening" or "browning" artefact of ±0.1 refle
 - **Two dates, not two composites.** Crop rotation and fallow timing drive the large, balanced
   decline/gain areas in farmland districts. Net metrics (mean ΔNDVI, change in vegetated share)
   are more reliable than either gross area alone. A median composite per season would be the
-  natural next step, but it is not feasible at acceptable speed with the current plugins
-  (bug 006).
+  natural next step. With 0.5.7 it is now feasible in runtime, but memory bounds the
+  practical raster size (§2.4).
 - **8 years, not 10.** No L2A imagery exists on Earth Search over Cairo before 2017 (§2.1). Landsat
   would reach back to 2015, but at 30 m and with a sensor change.
 - **Radiometric consistency** between S2B (2017) and S2A (2025, baseline 05.11) is
@@ -382,9 +403,11 @@ Shubra al-Khayma, Marg, Kardasa, Al-Ahram and Khsos. The dense core and the east
 greened slightly. The ranking holds up whether water is masked and whether districts are ranked
 by mean ΔNDVI or by change in vegetated share.
 
-s3geo could carry the whole workflow and gave exact results. Its pure-Python raster engine and
-three silent-wrong-result defects are the main obstacles to wider use. Fixing bug 006 would allow
-a re-run at native 10 m, which would mostly add information about the core districts.
+s3geo could carry the whole workflow and gave exact results. The defects found in 0.5.6 were
+three silent-wrong-result bugs and a pure-Python engine too slow for full-resolution rasters.
+Seven of the eight are fixed in 0.5.7, which runs the same pipeline about 20× faster with identical
+output. The remaining limit for a native 10 m run is memory in the list-based raster model, not
+speed.
 
 ## Reproducibility
 

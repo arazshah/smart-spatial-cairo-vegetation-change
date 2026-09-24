@@ -5,7 +5,7 @@
 1. **Urban-environment question**: how has vegetation health and extent (NDVI) changed across
    Cairo over ~10 years, and which districts lost the most?
 2. **Tool demonstration**: show a reproducible remote-sensing workflow built from
-   `smart-spatial-system==0.5.6` (s3geo) plugins, including an honest account of what worked and
+   `smart-spatial-system==0.5.7` (s3geo) plugins, including an honest account of what worked and
    what did not (bug reports in `bugs/`).
 
 ## Research question
@@ -66,4 +66,7 @@ effect of coarsening is discussed as a limitation. Fixed thresholds were set bef
 - [x] Pipeline dry-run on synthetic data; plugin output == independent reference
 - [x] Real data: S2 2017-08-27 / 2025-09-01 (no L2A before 2017 on Earth Search); districts from
       geoBoundaries ADM2 because OSM has no qism relations in Cairo (only admin_level 2 and 4)
-- [x] Real run (18.5 min), crosscheck ≤ 5e-5, water-masked sensitivity, figures, paper.md final
+- [x] Real run (18.5 min on 0.5.6), crosscheck ≤ 5e-5, water-masked sensitivity, figures, paper.md final
+
+- [x] 0.5.7 upstream fix release verified: bugs 001–007 fixed, 008 open; re-run gives identical numbers (55 s)
+- [ ] Optional: re-run at 20 m / 10 m (runtime fine on 0.5.7; memory-bound at 10 m on 7 GB)

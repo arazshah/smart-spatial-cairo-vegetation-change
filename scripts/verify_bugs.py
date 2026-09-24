@@ -1,4 +1,4 @@
-"""Minimal, self-contained reproductions for suspected smart-spatial-system==0.5.6 bugs.
+"""Minimal, self-contained reproductions for smart-spatial-system bugs found in 0.3.0/0.5.6 (all but 008 fixed in 0.5.7; PASS = fixed).
 Each check prints PASS (behaves as expected) or BUG (reproduces). No upstream code is modified."""
 import json, tempfile, time, os, random
 import numpy as np, rasterio

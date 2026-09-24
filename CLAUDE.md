@@ -6,7 +6,7 @@ as a short paper.
 
 ## Hard rule: never edit upstream
 
-- `smart-spatial-system==0.5.6` is installed from PyPI and treated as read-only.
+- `smart-spatial-system==0.5.7` is installed from PyPI and treated as read-only.
   **Never** modify, monkey-patch, vendor, fork or subclass-override anything in
   its installed modules (`plugins/`, `orchestrator/`, `s3geo/`, `config/`,
   `smart_spatial_system/`, `geochat_sdk/`, `geochat_kernel/`), including its
@@ -24,7 +24,7 @@ as a short paper.
 
 ```
 CLAUDE.md            this file
-requirements.txt     pinned deps (smart-spatial-system==0.5.6 + I/O libs)
+requirements.txt     pinned deps (smart-spatial-system==0.5.7 + I/O libs)
 data/README.md       provenance of every input (URLs, scene IDs, dates, licences)
 data/raw/            downloaded clipped COGs + OSM boundaries (git-ignored)
 data/processed/      plugin outputs (git-ignored except small tables)

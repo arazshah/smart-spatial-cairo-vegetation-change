@@ -32,8 +32,8 @@ OVERPASS_URLS = [u for u in os.environ.get("S3CASE_OVERPASS_URLS", "").split(","
 ]
 USER_AGENT = "smart-spatial-cairo-vegetation-change/0.1 (research case study)"
 
-# Analysis grid resolution (m). Chosen because of bug 006 (O(H^2*W) runtime in the
-# pure-python raster plugins) - see bugs/006-*.md and paper section 2.4.
+# Analysis grid resolution (m). Chosen under 0.5.6 because of bug 006 (O(H^2*W) runtime in
+# the pure-python raster plugins; fixed in 0.5.7) - see bugs/006-*.md and paper section 2.4.
 ANALYSIS_RES_M = float(os.environ.get("S3CASE_RES_M", "60"))
 
 # NDVI vegetation-health classes (upper bound inclusive, first match wins)

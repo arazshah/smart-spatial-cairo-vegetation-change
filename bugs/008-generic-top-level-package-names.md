@@ -2,13 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Package | smart-spatial-system==0.5.6 (pinned); also present in 0.3.0 |
+| Package | smart-spatial-system 0.3.0 – 0.5.6 |
 | Component | packaging (`top_level.txt`) |
 | Severity | low–medium |
 | Kind | packaging |
 | Found while | Phase 0 — installing the pinned dependency |
 | Repro | `cat $(python -c "import site;print(site.getsitepackages()[0])")/smart_spatial_system-0.5.6.dist-info/top_level.txt` |
 | Verified | 2026-09-24: reproduces on 0.3.0 and 0.5.6; the plugin source is byte-identical between them |
+| Status | **Open** in 0.5.7 (top_level.txt unchanged) — checked 2026-09-24 with `scripts/verify_bugs.py` |
 
 ## Summary
 Besides `smart_spatial_system` and `s3geo`, the wheel installs `api`, `config`, `orchestrator`,
