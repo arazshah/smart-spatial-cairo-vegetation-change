@@ -26,8 +26,17 @@ from typing import Any
 import s3geo
 
 HERE = Path(__file__).resolve().parent
-PLANS = Path(os.getenv("S3GEO_PLANS_DIR") or HERE / "plans")
-RESULTS = Path(os.getenv("S3GEO_RESULTS_DIR") or HERE / "results")
+def _dir(env: str, default: Path) -> Path:
+    """Env override; relative paths are taken from the repository root."""
+    v = os.getenv(env)
+    if not v:
+        return default
+    p = Path(v)
+    return p if p.is_absolute() else HERE.parent / p
+
+
+PLANS = _dir("S3GEO_PLANS_DIR", HERE / "plans")
+RESULTS = _dir("S3GEO_RESULTS_DIR", HERE / "results")
 PLANS.mkdir(parents=True, exist_ok=True)
 RESULTS.mkdir(parents=True, exist_ok=True)
 

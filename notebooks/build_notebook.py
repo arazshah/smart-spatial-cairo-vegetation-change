@@ -36,8 +36,8 @@ For every question:
 | `live` | The LLM writes every plan. Plans and all repair attempts are saved to `notebooks/plans/`. | `LLM_API_KEY` (+ optional `LLM_BASE_URL`, `LLM_MODEL`) |
 | `replay` | The plans saved by the last live run are executed again. No key needed, and the results are bit-for-bit reproducible. | `notebooks/plans/*.json` |
 
-Questions are asked in **Persian** by default, the language s3geo is built for. Set
-`LANG = "en"` to ask the same questions in English.
+All questions are asked in **English**. Each one names its input layers and band meanings the
+way a user would state them, and nothing more.
 """)
 
 code(r"""
@@ -54,11 +54,10 @@ import s3geo
 from importlib.metadata import version
 import s3geo_llm as L
 
-LANG = os.getenv("S3GEO_LANG", "fa")            # "fa" or "en"
 cfg = L.llm_config()
 MODE = os.getenv("S3GEO_MODE") or ("live" if cfg["api_key_set"] else "replay")
 print("smart-spatial-system", version("smart-spatial-system"))
-print("MODE =", MODE, "| LANG =", LANG, "| LLM:", {k: v for k, v in cfg.items()})
+print("MODE =", MODE, "| LLM:", {k: v for k, v in cfg.items()})
 """)
 
 md(r"""
@@ -153,8 +152,7 @@ def compare_series(qid, s, ref_col, tol=1e-3):
     check(qid, f"{ref_col} matches reference", diff <= tol and len(j) == len(REF),
           districts=len(j), max_abs_diff=diff, spearman=rho)
 
-def ask(qid, fa, en, **kw):
-    q = fa if LANG == "fa" else en
+def ask(qid, q, **kw):
     print("Q:", q)
     run = L.ask(qid, q, LAYERS_FOR[qid], mode=MODE, **kw)
     RUNS.append(run); show(run); return run
@@ -162,7 +160,6 @@ def ask(qid, fa, en, **kw):
 
 QUESTIONS = [
     ("Q1", "NDVI of one scene",
-     "برای لایهٔ s2_2017 (باند ۱ قرمز و باند ۲ مادون‌قرمز نزدیک است) شاخص NDVI را محاسبه کن.",
      "Compute NDVI for layer s2_2017 (band 1 is red, band 2 is near-infrared).",
      ["s2_2017"],
      r"""
@@ -172,7 +169,6 @@ if run.ok:
     check("Q1", "NDVI 2017 raster = reference", arr.shape == ref_ndvi["early"].shape and d < 1e-3, max_abs_diff=float(d))
 """),
     ("Q2", "District mean NDVI, 2017",
-     "میانگین NDVI سال ۲۰۱۷ را برای هر محله حساب کن. لایهٔ تصویر s2_2017 است (باند ۱ قرمز، باند ۲ مادون‌قرمز نزدیک) و محله‌ها در لایهٔ districts با شناسهٔ district_id هستند.",
      "Compute the mean 2017 NDVI for every district. The image is layer s2_2017 (band 1 red, band 2 near-infrared); districts are in layer districts with id field district_id.",
      ["s2_2017", "districts"],
      r"""
@@ -181,7 +177,6 @@ if run.ok:
     compare_series("Q2", s, "ndvi_early_mean")
 """),
     ("Q3", "District mean NDVI, 2025",
-     "میانگین NDVI سال ۲۰۲۵ را برای هر محله حساب کن. لایهٔ تصویر s2_2025 است (باند ۱ قرمز، باند ۲ مادون‌قرمز نزدیک) و محله‌ها در لایهٔ districts با شناسهٔ district_id هستند.",
      "Compute the mean 2025 NDVI for every district. The image is layer s2_2025 (band 1 red, band 2 near-infrared); districts are in layer districts with id field district_id.",
      ["s2_2025", "districts"],
      r"""
@@ -190,7 +185,6 @@ if run.ok:
     compare_series("Q3", s, "ndvi_late_mean")
 """),
     ("Q4", "ΔNDVI map from a 4-band stack",
-     "لایهٔ s2_stack چهار باند دارد: باند ۱ قرمز ۲۰۱۷، باند ۲ مادون‌قرمز نزدیک ۲۰۱۷، باند ۳ قرمز ۲۰۲۵، باند ۴ مادون‌قرمز نزدیک ۲۰۲۵. نقشهٔ تغییر NDVI یعنی NDVI سال ۲۰۲۵ منهای NDVI سال ۲۰۱۷ را بساز.",
      "Layer s2_stack has four bands: 1 = red 2017, 2 = NIR 2017, 3 = red 2025, 4 = NIR 2025. Build the NDVI change map, i.e. NDVI 2025 minus NDVI 2017.",
      ["s2_stack"],
      r"""
@@ -201,7 +195,6 @@ if run.ok:
     Q4_DNDVI = arr
 """),
     ("Q5", "District ΔNDVI and ranking",
-     "لایهٔ s2_stack چهار باند دارد: باند ۱ قرمز ۲۰۱۷، باند ۲ مادون‌قرمز نزدیک ۲۰۱۷، باند ۳ قرمز ۲۰۲۵، باند ۴ مادون‌قرمز نزدیک ۲۰۲۵. میانگین تغییر NDVI (۲۰۲۵ منهای ۲۰۱۷) را برای هر محلهٔ لایهٔ districts (شناسه district_id) حساب کن.",
      "Layer s2_stack has four bands: 1 = red 2017, 2 = NIR 2017, 3 = red 2025, 4 = NIR 2025. Compute the mean NDVI change (2025 minus 2017) for every district in layer districts (id field district_id).",
      ["s2_stack", "districts"],
      r"""
@@ -217,7 +210,6 @@ if run.ok:
         Q5_SERIES = s
 """),
     ("Q6", "Change classes",
-     "لایهٔ s2_stack چهار باند دارد: باند ۱ قرمز ۲۰۱۷، باند ۲ مادون‌قرمز نزدیک ۲۰۱۷، باند ۳ قرمز ۲۰۲۵، باند ۴ مادون‌قرمز نزدیک ۲۰۲۵. تغییر NDVI (۲۰۲۵ منهای ۲۰۱۷) را حساب کن و به پنج کلاس طبقه‌بندی کن: ۱ کاهش شدید (کمتر از ‎-0.15)، ۲ کاهش (از ‎-0.15 تا ‎-0.05)، ۳ پایدار (از ‎-0.05 تا 0.05)، ۴ افزایش (از 0.05 تا 0.15)، ۵ افزایش شدید (بیشتر از 0.15).",
      "Layer s2_stack has four bands: 1 = red 2017, 2 = NIR 2017, 3 = red 2025, 4 = NIR 2025. Compute the NDVI change (2025 minus 2017) and classify it into five classes: 1 strong decline (< -0.15), 2 decline (-0.15 to -0.05), 3 stable (-0.05 to 0.05), 4 gain (0.05 to 0.15), 5 strong gain (> 0.15).",
      ["s2_stack"],
      r"""
@@ -231,7 +223,6 @@ if run.ok:
     check("Q6", "class areas within 1 % of reference", worst <= 0.01, worst_rel_diff=float(worst))
 """),
     ("Q7", "Vegetated share per district",
-     "برای هر محلهٔ لایهٔ districts (شناسه district_id) سهم پیکسل‌هایی را که NDVI آن‌ها در سال ۲۰۱۷ دست‌کم ۰٫۲ است حساب کن. تصویر ۲۰۱۷ لایهٔ s2_2017 است (باند ۱ قرمز، باند ۲ مادون‌قرمز نزدیک). خروجی باید برای هر محله عددی بین ۰ و ۱ باشد.",
      "For every district in layer districts (id district_id), compute the share of pixels whose 2017 NDVI is at least 0.2. The 2017 image is layer s2_2017 (band 1 red, band 2 NIR). The result should be a number between 0 and 1 per district.",
      ["s2_2017", "districts"],
      r"""
@@ -240,7 +231,6 @@ if run.ok:
     compare_series("Q7", s, "veg_frac_early", tol=5e-3)  # ≤ ~1 pixel per district at the 0.2 threshold
 """),
     ("Q8", "Decline areas as polygons",
-     "لایهٔ s2_stack چهار باند دارد: باند ۱ قرمز ۲۰۱۷، باند ۲ مادون‌قرمز نزدیک ۲۰۱۷، باند ۳ قرمز ۲۰۲۵، باند ۴ مادون‌قرمز نزدیک ۲۰۲۵. پیکسل‌هایی را که NDVI آن‌ها از ۲۰۱۷ تا ۲۰۲۵ بیش از 0.05 کاهش یافته پیدا کن و به پلیگون تبدیل کن.",
      "Layer s2_stack has four bands: 1 = red 2017, 2 = NIR 2017, 3 = red 2025, 4 = NIR 2025. Find the pixels whose NDVI dropped by more than 0.05 from 2017 to 2025 and convert them to polygons.",
      ["s2_stack"],
      r"""
@@ -253,7 +243,6 @@ if run.ok:
     Q8_FEATS = feats
 """),
     ("Q9", "The open research question",
-     "لایهٔ s2_stack چهار باند دارد: باند ۱ قرمز ۲۰۱۷، باند ۲ مادون‌قرمز نزدیک ۲۰۱۷، باند ۳ قرمز ۲۰۲۵، باند ۴ مادون‌قرمز نزدیک ۲۰۲۵؛ محله‌ها در لایهٔ districts هستند. کدام ۱۰ محلهٔ قاهره بین ۲۰۱۷ و ۲۰۲۵ بیشترین کاهش پوشش گیاهی (میانگین تغییر NDVI) را داشته‌اند؟",
      "Layer s2_stack has four bands: 1 = red 2017, 2 = NIR 2017, 3 = red 2025, 4 = NIR 2025; districts are in layer districts. Which 10 Cairo districts had the largest vegetation decline (mean NDVI change) between 2017 and 2025?",
      ["s2_stack", "districts"],
      r"""
@@ -269,11 +258,11 @@ if run.ok:
 """),
 ]
 
-code("LAYERS_FOR = {" + ", ".join(f'"{q[0]}": {{k: layers_all[k] for k in {q[4]!r}}}' for q in QUESTIONS) + "}")
+code("LAYERS_FOR = {" + ", ".join(f'"{q[0]}": {{k: layers_all[k] for k in {q[3]!r}}}' for q in QUESTIONS) + "}")
 
-for qid, title, fa, en, _lay, chk in QUESTIONS:
-    md(f"## {qid}: {title}\n\n> **fa:** {fa}\n>\n> **en:** {en}")
-    code(f'run = ask("{qid}", {fa!r},\n          {en!r})\n' + chk.strip())
+for qid, title, en, _lay, chk in QUESTIONS:
+    md(f"## {qid}: {title}\n\n> {en}")
+    code(f'run = ask("{qid}",\n          {en!r})\n' + chk.strip())
 
 md(r"""
 ## Figures made from s3geo's own outputs
@@ -307,7 +296,7 @@ runs.to_csv(res / f"llm_runs_{MODE}.csv", index=False); checks.to_csv(res / f"ll
 n_q, n_ok = len(runs), int(runs.ok.sum())
 n_first = int(((runs.ok) & (runs.llm_attempts <= 1)).sum())
 n_pass = int(checks["pass"].sum()) if len(checks) else 0
-summary = {"mode": MODE, "lang": LANG, "model": runs.model.dropna().iloc[0] if runs.model.notna().any() else None,
+summary = {"mode": MODE, "lang": "en", "model": runs.model.dropna().iloc[0] if runs.model.notna().any() else None,
            "questions": n_q, "executed": n_ok, "plan_accepted_first_try": n_first,
            "checks": len(checks), "checks_passed": n_pass}
 (res / f"llm_summary_{MODE}.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))

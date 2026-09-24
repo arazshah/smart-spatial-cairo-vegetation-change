@@ -44,7 +44,7 @@ reproduces every number exactly, and runs **~20× faster** (18.5 min → 55 s).
 ## Ask s3geo in plain language (LLM mode)
 
 In [`notebooks/cairo_s3geo_llm.ipynb`](notebooks/cairo_s3geo_llm.ipynb) the analysis is **not**
-scripted. The notebook hands s3geo the rasters and districts, then asks 9 questions in Persian,
+scripted. The notebook hands s3geo the rasters and districts, then asks 9 questions in plain English,
 for example: *"Which 10 Cairo districts had the largest vegetation decline between 2017 and
 2025?"*
 

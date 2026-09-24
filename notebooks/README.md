@@ -1,6 +1,6 @@
 # LLM-driven run: give s3geo the data and a question
 
-`cairo_s3geo_llm.ipynb` asks s3geo 9 plain-language questions (in Persian by default). They
+`cairo_s3geo_llm.ipynb` asks s3geo 9 plain-language questions in English. They
 cover the whole case study: NDVI, per-district statistics, the ΔNDVI map, change classes,
 decline polygons and the "which districts lost the most?" ranking.
 
