@@ -21,10 +21,15 @@ AOI_BBOX = (31.10, 29.90, 31.40, 30.20)
 WORK_CRS = "EPSG:32636"  # UTM 36N - metric pixels for area reporting
 
 STAC_URL = "https://earth-search.aws.element84.com/v1/search"
-# Collection 1 is the ESA-reprocessed, radiometrically consistent archive (2015->);
-# the older 'sentinel-2-l2a' collection is used as a fallback.
+# Collection 1 is the ESA-reprocessed archive; over Cairo it starts in 2018, so pre-2018
+# scenes come from the older 'sentinel-2-l2a' collection (fallback, checked 2026-09-24).
 STAC_COLLECTIONS = ["sentinel-2-c1-l2a", "sentinel-2-l2a"]
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+# overpass-api.de answers this project's cloud egress with 406/connection reset, so the
+# kumi.systems mirror (same Overpass API, same OSM data) is tried as well.
+OVERPASS_URLS = [u for u in os.environ.get("S3CASE_OVERPASS_URLS", "").split(",") if u] or [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+]
 USER_AGENT = "smart-spatial-cairo-vegetation-change/0.1 (research case study)"
 
 # Analysis grid resolution (m). Chosen because of bug 006 (O(H^2*W) runtime in the

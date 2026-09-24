@@ -21,21 +21,30 @@ import requests
 from shapely.geometry import LineString, box
 from shapely.ops import linemerge, polygonize, unary_union
 
-from common import AOI_BBOX, OVERPASS_URL, RAW, USER_AGENT, dump
+from common import AOI_BBOX, OVERPASS_URLS, RAW, USER_AGENT, dump
 
 # Well-known Cairo / Giza districts (Arabic OSM names; English in name:en)
 PROBES = ["مدينة نصر", "المعادي", "مصر الجديدة", "الزمالك", "حلوان", "شبرا", "الدقي", "العجوزة", "إمبابة"]
 
 
 def overpass(q: str) -> dict:
-    for attempt in range(4):
-        r = requests.post(OVERPASS_URL, data={"data": q}, headers={"User-Agent": USER_AGENT}, timeout=240)
-        if r.status_code in (429, 504):
-            time.sleep(20 * (attempt + 1))
-            continue
-        r.raise_for_status()
-        return r.json()
-    raise RuntimeError("Overpass busy")
+    errors = []
+    for url in OVERPASS_URLS:
+        for attempt in range(3):
+            try:
+                r = requests.post(url, data={"data": q}, headers={"User-Agent": USER_AGENT}, timeout=240)
+            except requests.RequestException as e:
+                errors.append(f"{url}: {type(e).__name__}")
+                break
+            if r.status_code in (429, 504):
+                time.sleep(20 * (attempt + 1))
+                continue
+            if r.ok:
+                print(f"  (overpass endpoint: {url})")
+                return r.json()
+            errors.append(f"{url}: HTTP {r.status_code}")
+            break
+    raise RuntimeError("all Overpass endpoints failed: " + "; ".join(errors))
 
 
 def bbox_ql() -> str:
